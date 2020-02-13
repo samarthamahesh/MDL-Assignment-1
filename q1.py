@@ -2,111 +2,47 @@ import pickle
 import numpy as np
 from sklearn import linear_model
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
-
-def return_coef(train_set, degree):
-    eq = []
-    x_train = train_set[:, 0]
-    y_train = train_set[:, 1]
-    for i in x_train:
-        temp = []
-        for j in range(1, degree+1):
-            temp.append(i**j)
-        eq.append(temp)
-
-    reg.fit(eq, y_train)
-    coef = reg.coef_
-    return coef
-
-def calculate_y(x, coef, degree):
-    y = 0
-    for i in range(1, degree+1):
-        y += coef[i-1]*(x**i)
-    return y
-
-reg = linear_model.LinearRegression()
 
 file = open('Q1_data/data.pkl', 'rb')
 data = pickle.load(file)
 file.close()
 
-
 train, test = train_test_split(data, test_size=0.1)
 
-split_train = np.split(train, 10)
+train = np.array(train)
+train = np.split(train, 10)
+train = np.array(train)
+test = np.array(test)
+x_test = test[:, 0]
+y_test = test[:, 1]
+x_test = [[x] for x in x_test]
 
-X_test = test[:, 0]
-Y_test = test[:, 1]
+mean_bias = []
 
-biases = []
-### Bias of classifiers / models
 for degree in range(1, 10):
-    models = []
-    for iter in range(10):
-        coef = return_coef(split_train[iter], degree)
-        models.append(coef)
+    bias = np.zeros(500)
+    y_predicted = []
 
-    y_sum = 0
+    for set_iter in range(10):
+        x_train = train[set_iter][:, 0]
+        y_train = train[set_iter][:, 1]
+        x_train = [[x] for x in x_train]
 
-    for iter in range(10):
-        y_predict = calculate_y(X_test, models[iter], degree)
-        y_sum += y_predict
+        polyFeature = PolynomialFeatures(degree)
+        x_train = polyFeature.fit_transform(x_train)
+        x_test_poly = polyFeature.fit_transform(x_test)
+        reg = LinearRegression().fit(x_train, y_train)
+        y_predicted = reg.predict(x_test_poly)
+        bias += y_predicted
 
-    y_mean = y_sum / 10
+    bias /= 10
+    bias = np.subtract(bias, y_test)
 
-    bias = y_mean - Y_test
+    mean_bias.append(np.average(bias))
 
-    sum = np.sum(bias)
-    mean_bias = sum / len(y_mean)
-    biases.append(mean_bias)
-
-print(biases)
-
-variances = []
-### Variance of classifiers / models
-# for degree in range(1, 10):
-#     models = []
-#     for iter in range(10):
-#         coef = return_coef(split_train[iter], degree)
-#         models.append(coef)
-
-#     y_sum = 0
-
-#     y_predicted_col = []
-
-#     for iter in range(10):
-#         y_predicted = calculate_y(X_test, models[iter], degree)
-#         y_sum += y_predicted
-#         y_predicted_col.append(y_predicted)
-
-#     y_mean = y_sum / 10
-
-#     for iter in range(len(y_predicted_col)):
-#         y_predicted_col[iter] -= y_mean
-
-#     expected_squared = np.square(y_predicted_col)
-
-#     variance = 0
-
-#     length = len(expected_squared)
-#     for iter in range(length):
-#         variance += expected_squared[iter]
-
-#     length = len(variance)
-#     sum = np.sum(variance)
-
-#     mean_variance = sum / length
-#     variances.append(mean_variance)
-
-# # print(biases)
-# # print(variances)
-
-# bias_plot = np.square(biases)
-# variance_plot = variances
-
-# print(bias_plot)
-# print(variance_plot)
-
-# # plt.plot(bias_plot)
-# # plt.plot(variance_plot)
-# # plt.show()
+mean_bias = np.array(mean_bias)
+mean_bias = np.square(mean_bias)
+print(mean_bias)
