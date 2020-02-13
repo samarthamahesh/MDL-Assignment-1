@@ -26,7 +26,7 @@ def calculate_y(x, coef, degree):
 
 reg = linear_model.LinearRegression()
 
-file = open('../Q1_data/data.pkl', 'rb')
+file = open('Q1_data/data.pkl', 'rb')
 data = pickle.load(file)
 file.close()
 
