@@ -42,11 +42,11 @@ for degree in range(1, 10):
         bias = np.add(bias, y_predicted)
         variance = np.add(variance, y_predicted**2)
 
-    bias /= 10                                          # E[y']
-    variance /= 10                                      # E[y'^2]
+    bias /= 10
+    variance /= 10
 
-    variance = np.subtract(variance, np.square(bias))   # var = E[y'^2] - E[y']^2
-    bias = np.subtract(bias, y_test)                    # bias = E[y'] - y
+    variance = np.subtract(variance, np.square(bias))
+    bias = np.subtract(bias, y_test)
     bias = np.square(bias)
 
     final_bias.append(np.average(bias))
